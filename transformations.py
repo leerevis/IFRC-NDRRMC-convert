@@ -847,7 +847,7 @@ def transform_damage_to_infrastructure(df):
     df = df[~df['Location'].str.upper().str.contains('|'.join(total_keywords), na=False)].reset_index(drop=True)
     
     # Step 2: Forward-fill Location for detail rows
-    df['Location'] = df['Location'].fillna(method='ffill')
+    df['Location'] = df['Location'].ffill()
     
     # Step 3: Assign Level based on Count
     # If Count exists (not NaN) → Municipality, otherwise → Barangay
@@ -910,8 +910,8 @@ def transform_assistance_to_families(df):
     df = df[~df['Location'].str.upper().str.contains('|'.join(total_keywords), na=False)].reset_index(drop=True)
     
     # Step 2: Forward-fill Location and Count for detail rows
-    df['Location'] = df['Location'].fillna(method='ffill')
-    df['Count'] = df['Count'].fillna(method='ffill')
+    df['Location'] = df['Location'].ffill()
+    df['Count'] = df['Count'].ffill()
     
     # Step 3: Assign Level - all municipalities (have Count)
     df['Level'] = 'Municipality'
@@ -953,8 +953,8 @@ def transform_assistance_to_lgus(df):
     df = df[~df['Location'].str.upper().str.contains('|'.join(total_keywords), na=False)].reset_index(drop=True)
     
     # Step 2: Forward-fill Location and Count for detail rows
-    df['Location'] = df['Location'].fillna(method='ffill')
-    df['Count'] = df['Count'].fillna(method='ffill')
+    df['Location'] = df['Location'].ffill()
+    df['Count'] = df['Count'].ffill()
     
     # Step 3: Assign Level based on Count (has Count = Municipality, no Count = detail row)
     df['Level'] = df['Count'].apply(lambda x: 'Municipality' if pd.notna(x) else 'Detail')

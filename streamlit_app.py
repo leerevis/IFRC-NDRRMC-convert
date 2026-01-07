@@ -819,27 +819,15 @@ elif page == "Extract":
                         col1, col2 = st.columns(2)
 
                         with col1:
-                            if st.button("📊 View Dashboard", type="primary", use_container_width=True):
+                            if st.button("📊 View Dashboard", type="primary", use_container_width=True, key="goto_dash"):
                                 st.session_state.current_page = "Dashboard"
                                 st.rerun()
 
                         with col2:
-                            if st.button("⬇️ View Downloads", use_container_width=True):
+                            if st.button("⬇️ View Downloads", use_container_width=True, key="goto_dl"):
                                 st.session_state.current_page = "Downloads"
                                 st.rerun()
-                        # Then the existing navigation happens:
-                        #time.sleep(2)
-                        #st.session_state.current_page = "Downloads"
-                        #st.rerun()
-                        
-                        #st.success(f"✅ Extracted and transformed {len(combined_sections)} tables in {minutes}m {seconds}s!")
-                        
-                        #if report_metadata.get('disaster_name'):
-                            #st.info(f"🌪️ Disaster: {report_metadata['disaster_name']} ({report_metadata.get('disaster_year', '')})")
-                        
-                        #time.sleep(2)
-                        #st.session_state.current_page = "Downloads"
-                        #st.rerun()
+
 
 # =============================================================================
 # DOWNLOADS PAGE
