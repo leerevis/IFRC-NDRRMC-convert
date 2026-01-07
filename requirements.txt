@@ -3,8 +3,8 @@ pdfplumber
 pandas
 openpyxl
 numpy
-tempfile
-os
+tabula-py
 PyPDF2
-tabula
+python-docx
 scikit-learn
+requests
