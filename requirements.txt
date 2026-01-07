@@ -2,3 +2,9 @@ streamlit
 pdfplumber
 pandas
 openpyxl
+numpy
+tempfile
+os
+PyPDF2
+tabula
+scikit-learn
