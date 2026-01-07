@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pkl
+extraction_cache.pkl
+*.pdf
+.DS_Store
