@@ -1248,7 +1248,8 @@ elif page == "Dashboard":
             with col2:
                 if has_casualties:
                     df_cas = transformed_tables['CASUALTIES']
-                    df_cas_muni = df_cas[df_cas['Level'] == 'Municipality']
+                    # Casualties table doesn't have Level column - just use it as-is
+                    df_cas_muni = df_cas.copy()
                     
                     if 'Casualty_Type' in df_cas_muni.columns and 'QTY' in df_cas_muni.columns:
                         total_casualties = df_cas_muni['QTY'].sum()
