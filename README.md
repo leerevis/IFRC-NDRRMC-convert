@@ -1,4 +1,4 @@
-# NDRRMC DROMIC PDF Extraction & Analytics Tool
+# NDRRMC PDF Extraction & Analytics Tool
 
 ## Overview
 
