@@ -2,11 +2,11 @@
 
 ## Overview
 
-Automated extraction and transformation pipeline for Philippine NDRRMC (National Disaster Risk Reduction and Management Council) DROMIC (Disaster Response Operations Monitoring and Information Center) situational reports.
+Automated extraction and transformation pipeline for Philippine NDRRMC (National Disaster Risk Reduction and Management Council) situational reports.
 
 **Purpose:** Convert 100-600 page disaster response PDFs into structured, analysis-ready datasets with proper administrative geography hierarchy and advanced vulnerability analytics.
 
-**Live Demo:** [[Streamlit Tool]](https://ifrc-ndrrmc-convert.streamlit.app/)
+**Live App:** [Streamlit Tool](https://ifrc-ndrrmc-convert.streamlit.app/)
 
 ---
 
