@@ -1840,42 +1840,77 @@ elif page == "Help":
     st.title("❓ Help & Frequently Asked Questions")
     st.markdown("---")
     
-    st.markdown("### Getting Started")
+    # Tool Selection
+    st.markdown("### Which Tool Should I Use?")
     
-    with st.expander("How do I upload a PDF?", expanded=True):
-        st.markdown("""
-        1. Click **Load PDF** in the sidebar menu
-        2. Choose either:
-           - **Upload**: Select a file from your computer
-           - **URL**: Paste a link to a PDF online
-        3. Wait ~2 seconds for automatic summary extraction
-        4. View summaries or extract detailed tables
-        """)
-    
-    with st.expander("What does a compatible report look like?"):
-        # Placeholder for report example image
-        # st.image("assets/report_example.png", caption="Example: NDRRMC DROMIC report format")
-        st.markdown("""
-        **Compatible format:**
-        - NDRRMC DROMIC Situational Reports
-        - Landscape-oriented table pages
-        - Clear headers with Region/Province/Municipality hierarchy
-        - Tabular data (not narrative text)
-        - Machine-readable PDF (not scanned images)
-        """)
-    
-    with st.expander("How long does extraction take?"):
-        st.markdown("""
-        - **Summary tables:** ~2 seconds (automatic)
-        - **Detailed tables:** ~1-2 seconds per page
+    with st.expander("NDRRMC Sitrep vs DROMIC Tool - What's the difference?", expanded=True):
+        comparison_data = {
+            "Feature": [
+                "Best For",
+                "Table Types",
+                "Extraction Time",
+                "Admin Levels",
+                "P-codes",
+                "Dashboard Analytics",
+                "Output Format"
+            ],
+            "NDRRMC Sitrep": [
+                "Comprehensive analysis",
+                "13 types (multi-table)",
+                "~1-20 minutes",
+                "Region → Barangay",
+                "✅ ADM0-ADM4",
+                "✅ 5 modules",
+                "Multiple CSVs with filters"
+            ],
+            "DROMIC": [
+                "Quick single-table extraction",
+                "Custom (1 table at a time)",
+                "~30 seconds",
+                "Region → Municipality",
+                "✅ ADM0-ADM3",
+                "❌ No",
+                "Single CSV download"
+            ]
+        }
         
-        **Examples:**
+        st.table(pd.DataFrame(comparison_data))
+        
+        st.markdown("""
+        **Use NDRRMC Sitrep Tool when:**
+        - You need multiple table types from one report
+        - You want vulnerability analysis and dashboards
+        - You need barangay-level detail
+        - You're doing comprehensive disaster impact analysis
+        
+        **Use DROMIC Tool when:**
+        - You need one specific table quickly
+        - The table format is non-standard
+        - You want to customize text pattern matching
+        - You don't need dashboard analytics
+        """)
+    
+    st.markdown("---")
+    
+    # Getting Started - NDRRMC
+    st.markdown("### Getting Started - NDRRMC Sitrep Tool")
+    
+    with st.expander("How do I extract NDRRMC tables?"):
+        st.markdown("""
+        1. Click **Launch NDRRMC Sitrep Tool** from home
+        2. **Load PDF**: Upload file or paste URL
+        3. Wait ~2 seconds for automatic summary extraction
+        4. **View Summary Dashboard** (optional): See regional aggregates
+        5. **Extract Detailed Tables**: Select which tables you need
+        6. **Downloads**: Get clean CSVs with P-codes and location hierarchy
+        
+        **Extraction time:**
         - 100-page report: ~2-3 minutes
         - 300-page report: ~6-10 minutes
         - 600-page report: ~12-20 minutes
         """)
     
-    with st.expander("What tables are supported?"):
+    with st.expander("What NDRRMC tables are supported?"):
         st.markdown("""
         **Demographics (3 tables):**
         - Affected Population
@@ -1888,53 +1923,340 @@ elif page == "Help":
         - Water Supply
         - Communication Lines
         
-        **Sectoral (4 tables):**
+        **Sectoral (3 tables):**
         - Damage to Agriculture
         - Damage to Infrastructure
+        - Related Incidents (flooding, landslides)
+        
+        **Assistance (3 tables):**
         - Assistance to Families
         - Assistance to LGUs
+        - Pre-emptive Evacuation
+        """)
+    
+    with st.expander("How do I use the Dashboard analytics?"):
+        st.markdown("""
+        After extracting data, click **Detailed Dashboard** to see:
+        
+        **🎯 Assistance Gap Analysis**
+        - Identifies municipalities with high displacement but low assistance coverage
+        - Shows Gap Score (displaced persons per family assisted)
+        
+        **🚧 Access & Isolation Risk**
+        - Municipalities cut off by impassable roads and flooding
+        - Combines road blockage + flooding + high displacement
+        
+        **⚡ Lifelines Compound Failure**
+        - Areas with multiple utility failures (water + power + communications)
+        - Highlights compound impact zones
+        
+        **📈 Recovery Progress Tracking**
+        - Tracks restoration of water, power, communications
+        - Identifies stagnant areas with no recovery progress
+        
+        **🎯 Vulnerability Hotspots**
+        - Multi-dimensional scoring combining displacement, housing damage, and lifeline failures
+        - Weighted by magnitude (larger affected populations = higher priority)
+        
+        **Note:** Some sections require specific tables (e.g., roads data for isolation risk)
+        """)
+    
+    # Getting Started - DROMIC
+    st.markdown("---")
+    st.markdown("### Getting Started - DROMIC Tool")
+    
+    with st.expander("How do I extract DROMIC tables?"):
+        st.markdown("""
+        1. Click **Launch DROMIC Tool** from home
+        2. **Load PDF**: Upload file or paste URL
+        3. **Configure Extraction**:
+           - **Page Text Pattern**: Text that must appear on page (default: "NO. OF DAMAGED HOUSES")
+           - **Table Text Pattern**: Comma-separated text in table header (default: "NO. OF DAMAGED HOUSES, Total")
+        4. Click **Extract & Transform**
+        5. Preview results and **Download CSV**
+        
+        **Extraction time:** ~30 seconds typical
+        """)
+    
+    with st.expander("How do custom text patterns work?"):
+        st.markdown("""
+        DROMIC reports vary in format, so you can customize how tables are detected:
+        
+        **Page Text Pattern:**
+        - Text that must appear on the page to extract tables from it
+        - Example: "NO. OF DISPLACED" finds pages with displacement tables
+        
+        **Table Text Pattern:**
+        - Comma-separated text that must appear in the table header
+        - Used to identify the correct table on the page
+        - Example: "NO. OF DISPLACED, Total" ensures the table has both strings
+        
+        **Tips:**
+        - Keep patterns specific but not too long
+        - Use text that appears in EVERY table you want
+        - Avoid special characters
+        - Default patterns work for most DROMIC reports
+        """)
+    
+    with st.expander("What admin levels does DROMIC detect?"):
+        st.markdown("""
+        DROMIC tool uses counter-based logic to detect:
+        
+        - **ADM0 (Country)**: Rows with "GRAND TOTAL"
+        - **ADM1 (Region)**: UPPERCASE rows (not GRAND TOTAL)
+        - **ADM2 (Province)**: First row in each region
+        - **ADM3 (Municipality)**: Rows whose totals sum to province total
+        - **HUC (Highly Urbanized Cities)**: Matched against reference list
+        
+        The algorithm validates by checking if municipality totals add up to province totals.
+        
+        All levels get P-codes automatically.
+        """)
+    
+    # Common Features
+    st.markdown("---")
+    st.markdown("### Common Features")
+    
+    with st.expander("How does PDF loading work?"):
+        st.markdown("""
+        **Two options (both tools):**
+        
+        **Upload File:**
+        1. Click "Choose a PDF file"
+        2. Select from your computer
+        3. File uploads and processes automatically
+        
+        **Load from URL:**
+        1. Paste PDF link (must be publicly accessible)
+        2. Click "Load PDF from URL"
+        3. File downloads and processes automatically
+        
+        **Compatible formats:**
+        - ✅ NDRRMC DROMIC situational reports
+        - ✅ DSWD DROMIC reports
+        - ✅ Landscape-oriented tables
+        - ✅ Machine-readable PDFs
+        - ❌ Scanned/image-only PDFs
+        - ❌ Portrait-only documents
+        """)
+    
+    with st.expander("What are P-codes and why do they matter?"):
+        st.markdown("""
+        **P-codes** are Philippine Standard Geographic Codes (PSGC) - unique identifiers for every administrative area.
+        
+        **Why they're useful:**
+        - Join data from different sources (census, surveys, other disasters)
+        - Use with GIS mapping software
+        - Avoid name-matching problems (e.g., "Iloilo City" vs "City of Iloilo")
+        - Required for many humanitarian reporting systems
+        
+        **What you get:**
+        - ADM0: Country (PH)
+        - ADM1: Region (e.g., PH050000000 = Region V)
+        - ADM2: Province (e.g., PH053400000 = Albay)
+        - ADM3: Municipality (e.g., PH053401000 = Bacacay)
+        - ADM4: Barangay (NDRRMC tool only)
+        
+        **Match rate:**
+        - Regions: ~98%
+        - Provinces: ~95%
+        - Municipalities: ~90%
+        - Barangays: ~85%
+        
+        Unmatched locations get NULL P-codes but still include location names.
         """)
     
     with st.expander("What format are the downloads?"):
         st.markdown("""
-        All tables are provided as CSV files with:
-        - **Location hierarchy:** Region, Province, Municipality, Barangay columns
-        - **Clean data:** Standardized formatting, no totals/subtotals
-        - **Ready for analysis:** Import directly into Excel, Power BI, Python, R
+        All downloads are CSV files with:
+        
+        **Location columns:**
+        - Region, Province, Municipality, Barangay (where applicable)
+        - ADM0_EN, ADM0_PCODE (country)
+        - ADM1_EN, ADM1_PCODE (region)
+        - ADM2_EN, ADM2_PCODE (province)
+        - ADM3_EN, ADM3_PCODE (municipality)
+        - ADM4_EN, ADM4_PCODE (barangay - NDRRMC only)
+        
+        **Data columns:**
+        - Table-specific (e.g., Affected_Persons, Totally_Damaged)
+        - Numeric values (no commas)
+        - Clean headers (no special characters)
+        
+        **Ready for:**
+        - Excel / Google Sheets
+        - Power BI / Tableau
+        - Python / R analysis
+        - Database import
+        - GIS software (with P-codes)
         """)
     
+    # Troubleshooting
     st.markdown("---")
     st.markdown("### Troubleshooting")
     
     with st.expander("My PDF isn't working"):
         st.markdown("""
-        **Requirements:**
-        - NDRRMC DROMIC format
-        - Landscape-oriented tables
+        **Check these requirements:**
+        
+        **For NDRRMC Tool:**
+        - NDRRMC DROMIC format (2020+)
+        - Landscape-oriented table pages
         - Machine-readable (not scanned images)
-        - From 2024-2025
+        - Standard table headers
+        
+        **For DROMIC Tool:**
+        - DSWD DROMIC format
+        - Tables with clear headers
+        - Hierarchical structure (Region → Province → Municipality)
         
         **Common issues:**
-        - Portrait-only PDFs won't extract properly
         - Very old reports may have different formatting
-        - Scanned/image PDFs require OCR (not supported)
+        - Scanned/image PDFs won't work (need OCR)
+        - Portrait-only PDFs won't extract properly
+        - Non-standard table formats may fail
+        
+        **Try:**
+        - DROMIC tool if NDRRMC tool fails (more flexible)
+        - Adjusting text patterns in DROMIC tool
+        - Checking if PDF is actually machine-readable (can you copy text?)
         """)
     
     with st.expander("Data looks incomplete or wrong"):
         st.markdown("""
-        - Compare with source PDF to verify
+        **Always compare with source PDF to verify.**
+        
+        **Common issues:**
         - Some reports have non-standard table formatting
-        - "No breakdown" means municipality-level data only
-        - Check the Summary Dashboard first to verify basic extraction worked
+        - "No breakdown" means municipality-level data only (no barangay detail)
+        - Missing tables means that table type wasn't in the PDF
+        - Empty columns may indicate placeholder data in original report
+        
+        **For NDRRMC Tool:**
+        - Check Summary Dashboard first to verify basic extraction
+        - Some tables may be missing if not in original report
+        - Dashboard sections need specific tables to function
+        
+        **For DROMIC Tool:**
+        - Adjust text patterns if wrong table is extracted
+        - Check admin level detection - does hierarchy look correct?
+        - Province/municipality totals should add up
         """)
     
-    with st.expander("App is slow or timing out"):
+    with st.expander("Extraction is slow or timing out"):
         st.markdown("""
-        - Large PDFs (500+ pages) take 15-25 minutes
-        - Streamlit free tier has limited resources
-        - Try extracting fewer tables at once
-        - Refresh the page and try again if stuck
+        **Expected times:**
+        
+        **NDRRMC Tool:**
+        - 50-page report: ~1-2 minutes
+        - 200-page report: ~4-6 minutes
+        - 500+ page report: 15-25 minutes
+        
+        **DROMIC Tool:**
+        - Most reports: 20-60 seconds
+        
+        **If slower than expected:**
+        - Streamlit Cloud free tier has limited resources
+        - Large PDFs take longer
+        - Try extracting fewer tables at once (NDRRMC)
+        - Refresh page and try again if stuck
+        - Check progress bar - as long as it's moving, it's working
         """)
+    
+    with st.expander("Download button isn't working"):
+        st.markdown("""
+        **NDRRMC Tool:**
+        - Make sure you've completed extraction first
+        - Downloads page only shows after extraction completes
+        - Download buttons appear in expandable table sections
+        
+        **DROMIC Tool:**
+        - Download button appears after extraction completes
+        - Button is below the preview table
+        - Page will refresh after download (normal behavior)
+        
+        **Both tools:**
+        - Check your browser's download folder
+        - Try different browser if issues persist
+        - Some corporate networks block downloads
+        """)
+    
+    with st.expander("Dashboard shows 'N/A' or zeros"):
+        st.markdown("""
+        This is normal and means:
+        
+        **For NDRRMC Dashboard:**
+        - You haven't extracted that specific table type yet
+        - That table type wasn't in the original PDF
+        - Dashboard sections need specific tables to function:
+          - Assistance Gap → needs "Assistance to Families"
+          - Isolation Risk → needs "Roads and Bridges"
+          - Lifelines Failure → needs "Power", "Water", "Communications"
+          - Recovery Progress → needs lifeline tables
+          - Vulnerability Hotspots → combines multiple tables
+        
+        **Solution:**
+        - Go back to Extract page
+        - Select missing table types
+        - Re-extract
+        - Dashboard will update automatically
+        """)
+    
+    with st.expander("P-codes are missing (NULL)"):
+        st.markdown("""
+        **Why this happens:**
+        - Location name doesn't match P-code reference exactly
+        - New barangays created after 2023 (not in reference yet)
+        - Typos or non-standard names in original PDF
+        - Administrative boundary changes
+        
+        **What to do:**
+        - Location name is still there (Region, Province, Municipality columns)
+        - You can manually add P-codes using location name
+        - Match rates are typically 90%+ so most locations have P-codes
+        - Report systematic issues on GitHub
+        
+        **Most common mismatches:**
+        - "City Proper" instead of actual municipality name
+        - Metro Manila district variations
+        - Recently created barangays
+        """)
+    
+    # Advanced
+    st.markdown("---")
+    st.markdown("### Advanced Usage")
+    
+    with st.expander("Can I process multiple PDFs at once?"):
+        st.markdown("""
+        **No, not directly in the web interface.**
+        
+        Each tool processes one PDF at a time.
+        
+        **For batch processing:**
+        - Download the code from GitHub
+        - Run locally with Python
+        - Loop through PDF files in a folder
+        - See README for developer documentation
+        """)
+    
+    with st.expander("Can I customize the DROMIC extraction further?"):
+        st.markdown("""
+        **In the web interface:**
+        - You can customize text patterns
+        - That's the extent of web customization
+        
+        **For advanced needs:**
+        - Download code from GitHub
+        - Modify `dromic_extractor.py` directly
+        - Change HUC detection logic
+        - Adjust counter thresholds
+        - Add custom validation rules
+        
+        The DROMIC extractor is based on a Jupyter notebook with empirically-tested logic.
+        """)
+     
+    st.markdown("---")
+
 
 # =============================================================================
 # DROMIC EXTRACT PAGE
