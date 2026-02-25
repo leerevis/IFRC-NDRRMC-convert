@@ -6,8 +6,7 @@ Dual-tool platform for extracting and analyzing Philippine disaster response dat
 
 **Purpose:** Convert 50-600 page disaster response PDFs into structured, analysis-ready datasets with proper administrative geography hierarchy, P-codes, and advanced vulnerability analytics.
 
-**Live Demo:** https://ifrc-ndrrmc-convert.streamlit.app/
-
+**Live Demo:** https://ifrc-philippines-data-convert.streamlit.app/
 ---
 
 ## Table of Contents
@@ -90,7 +89,7 @@ Dual-tool platform for extracting and analyzing Philippine disaster response dat
 ### Local Setup
 ```bash
 # Clone repository
-git clone https://github.com/YOUR-USERNAME/ifrc-ndrrmc-convert.git
+git clone https://github.com/YOUR-USERNAME/ifrc-philippines-data-convert/.git
 cd ifrc-ndrrmc-convert
 
 # Create virtual environment
@@ -454,6 +453,7 @@ Open GitHub issue with:
 ---
 
 [Lee Revis](https://www.linkedin.com/in/leerevis/)
+
 [Ella Blom](https://www.linkedin.com/in/ella-blom/)
 
 ---
