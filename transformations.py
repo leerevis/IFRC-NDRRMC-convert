@@ -366,7 +366,7 @@ def transform_roads_and_bridges(df):
     df = df.dropna(subset=['Sub-total'] + text_columns, how='all').reset_index(drop=True)
     
     # Add P-codes
-    df_final = add_pcodes(df_final)
+    df = add_pcodes(df)
 
     return df
 
@@ -395,7 +395,7 @@ def transform_power(df):
     df = df.dropna(subset=['Sub-total'] + text_columns, how='all').reset_index(drop=True)
     
     # Add P-codes
-    df_final = add_pcodes(df_final)
+    df = add_pcodes(df)
 
     return df
 
@@ -424,7 +424,7 @@ def transform_water_supply(df):
     df = df.dropna(subset=['Sub-total'] + text_columns, how='all').reset_index(drop=True)
     
     # Add P-codes
-    df_final = add_pcodes(df_final)
+    df = add_pcodes(df)
 
     return df
 
