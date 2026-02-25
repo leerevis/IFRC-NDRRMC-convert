@@ -139,7 +139,7 @@ with st.sidebar:
     
     st.markdown("<h1 style='text-align: center;'>Philippines Data Conversion Tools</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center;'><a href='https://monitoring-dashboard.ndrrmc.gov.ph/page/situations' target='_blank'>NDRRMC Sitreps</a></p>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'><a href='https://dromic.dswd.gov.ph/category/situation-reports/' target='_blank'>DWSD DROMIC Sitreps</a></p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'><a href='https://dromic.dswd.gov.ph/category/situation-reports/' target='_blank'>DSWD DROMIC Sitreps</a></p>", unsafe_allow_html=True)
     st.markdown("---")
     
     # Show current tool
