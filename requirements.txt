@@ -8,3 +8,6 @@ PyPDF2
 python-docx
 scikit-learn
 requests
+thefuzz
+python-Levenshtein
+unidecode

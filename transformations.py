@@ -1,5 +1,6 @@
 import pandas as pd
 from config import REGION_IDENTIFIERS, REGION_PROVINCE_MAP, HUCS
+from pcodes import add_pcodes
 
 def extract_location_hierarchy(df, location_col='Location', subtotal_col='Sub-total'):
     """
@@ -225,6 +226,8 @@ def extract_location_hierarchy(df, location_col='Location', subtotal_col='Sub-to
 
     #print(f"FINAL: {len(df)} rows - Municipality: {len(df[df['Level']=='Municipality'])}, Barangay: {len(df[df['Level']=='Barangay'])}")
     
+    df = add_pcodes(df)
+
     return df
 
 def transform_affected_population(df):
@@ -289,6 +292,9 @@ def transform_affected_population(df):
     columns_to_drop = ['Is_Province_Header', 'Is_Municipality_Header', '_location_upper', '_is_huc']
     df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
 
+    
+    df = add_pcodes(df)
+
     return df
 
 def transform_related_incidents(df):
@@ -318,6 +324,8 @@ def transform_related_incidents(df):
     # Step X: Remove flag columns before returning
     columns_to_drop = ['Is_Province_Header', 'Is_Municipality_Header', '_location_upper', '_is_huc']
     df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
+    
+    df = add_pcodes(df)
 
     return df
 
@@ -357,6 +365,9 @@ def transform_roads_and_bridges(df):
     text_columns = ['Type', 'Classification', 'Status']
     df = df.dropna(subset=['Sub-total'] + text_columns, how='all').reset_index(drop=True)
     
+    # Add P-codes
+    df_final = add_pcodes(df_final)
+
     return df
 
 def transform_power(df):
@@ -383,6 +394,9 @@ def transform_power(df):
     text_columns = ['Type', 'Service_Provider']
     df = df.dropna(subset=['Sub-total'] + text_columns, how='all').reset_index(drop=True)
     
+    # Add P-codes
+    df_final = add_pcodes(df_final)
+
     return df
 
 def transform_water_supply(df):
@@ -409,6 +423,9 @@ def transform_water_supply(df):
     text_columns = ['Type', 'Service_Provider']
     df = df.dropna(subset=['Sub-total'] + text_columns, how='all').reset_index(drop=True)
     
+    # Add P-codes
+    df_final = add_pcodes(df_final)
+
     return df
 
 def transform_communication_lines(df):
@@ -511,6 +528,8 @@ def transform_communication_lines(df):
     location_cols = ['Region', 'Province', 'Municipality', 'Barangay', 'Level']
     other_cols = [col for col in df.columns if col not in location_cols]
     df = df[location_cols + other_cols]
+
+    df = add_pcodes(df)
 
     return df
 
@@ -652,6 +671,8 @@ def transform_damaged_houses(df):
     cols.insert(province_idx + 2, 'Barangay')
     df = df[cols]
     
+    df = add_pcodes(df)
+
     return df
 
 def transform_casualties(df):
@@ -728,6 +749,8 @@ def transform_casualties(df):
     columns_to_drop = ['Is_Province_Header', 'Is_Municipality_Header', '_location_upper', '_is_huc']
     df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
     
+    df = add_pcodes(df)
+
     return df
 
 def transform_damage_to_agriculture(df):
@@ -834,6 +857,8 @@ def transform_damage_to_agriculture(df):
     other_cols = [col for col in df.columns if col not in location_cols]
     df = df[location_cols + other_cols]
     
+    df = add_pcodes(df)
+
     return df
 
 def transform_damage_to_infrastructure(df):
@@ -897,6 +922,9 @@ def transform_damage_to_infrastructure(df):
     columns_to_drop = ['Is_Province_Header', 'Is_Municipality_Header', '_location_upper', '_is_huc', 'Count']
     df_grouped = df_grouped.drop(columns=[col for col in columns_to_drop if col in df_grouped.columns])
     
+    # Add P-codes
+    df_grouped = add_pcodes(df_grouped)
+    
     return df_grouped
 
 def transform_assistance_to_families(df):
@@ -940,6 +968,8 @@ def transform_assistance_to_families(df):
     columns_to_drop = ['Is_Province_Header', 'Is_Municipality_Header', '_location_upper', '_is_huc', 'Count']
     df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
     
+    df = add_pcodes(df)
+
     return df
 
 def transform_assistance_to_lgus(df):
@@ -998,6 +1028,8 @@ def transform_assistance_to_lgus(df):
     columns_to_drop = ['Is_Province_Header', 'Is_Municipality_Header', '_location_upper', '_is_huc', 'Count']
     df = df.drop(columns=[col for col in columns_to_drop if col in df.columns])
     
+    df = add_pcodes(df)
+
     return df
 
 def transform_pre_emptive_evacuation(df):
