@@ -15,7 +15,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 # Page configuration
 st.set_page_config(
-    page_title="NDRRMC Report Extractor",
+    page_title="Philippines Data Extractor",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -225,7 +225,7 @@ page = st.session_state.current_page
 # HOME PAGE
 # =============================================================================
 if page == "Home":
-    st.title("📊 NDRRMC Data Extraction Tools")
+    st.title("📊 Philippines Data Extraction Tools")
     st.markdown("### Choose your extraction tool")
     
     # Hero section
@@ -235,7 +235,7 @@ if page == "Home":
         with st.container(border=True):
             st.subheader("🔷 NDRRMC Sitrep Extractor")
             st.markdown("""
-            **Best for:** Multi-table extraction with detailed analytics
+            **Best for:** Multi-table extraction with detailed analytics of NDRRMC Sitreps
             
             **Features:**
             - 13 table types supported
@@ -255,7 +255,7 @@ if page == "Home":
         with st.container(border=True):
             st.subheader("🔶 DROMIC Report Extractor")
             st.markdown("""
-            **Best for:** Quick single-table extraction
+            **Best for:** Quick single-table extraction of DSWD DROMIC Reports
             
             **Features:**
             - Custom text pattern detection
