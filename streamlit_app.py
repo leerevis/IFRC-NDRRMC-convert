@@ -12,11 +12,6 @@ from sklearn.preprocessing import MinMaxScaler
 # =============================================================================
 # STREAMLIT CONFIG
 # =============================================================================
-st.set_page_config(
-    page_title="NDRRMC DROMIC PDF Converter",
-    page_icon="📄",
-    layout="wide"
-)
 
 # Page configuration
 st.set_page_config(
@@ -30,6 +25,8 @@ st.set_page_config(
 if 'current_page' not in st.session_state:
     st.session_state.current_page = "Home"
 
+if 'current_tool' not in st.session_state:
+    st.session_state.current_tool = None
 
 def format_dataframe_for_display(df):
     """
@@ -135,53 +132,83 @@ def create_dynamic_filters(df, table_name):
 # SIDEBAR NAVIGATION
 # =============================================================================
 with st.sidebar:
-    # IFRC Logo centered at top
+    # IFRC Logo
     col1, col2, col3 = st.columns([0.5, 2, 0.5])
     with col2:
         st.image("assets/Logo-Horizontal-RGB.svg", width='stretch')
     
-    st.markdown("<h1 style='text-align: center;'>NDRRMC Extractor</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>Philippines Data Conversion Tools</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center;'><a href='https://monitoring-dashboard.ndrrmc.gov.ph/page/situations' target='_blank'>NDRRMC Sitreps</a></p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'><a href='https://dromic.dswd.gov.ph/category/situation-reports/' target='_blank'>DWSD DROMIC Sitreps</a></p>", unsafe_allow_html=True)
     st.markdown("---")
     
+    # Show current tool
+    if st.session_state.current_tool:
+        tool_emoji = "🔷" if st.session_state.current_tool == "NDRRMC" else "🔶"
+        st.info(f"{tool_emoji} **Active Tool:** {st.session_state.current_tool}")
+        st.markdown("---")
     
-    # Navigation buttons
+    # Home button (always visible)
     if st.button("🏠 Home", width='stretch', 
                  type="primary" if st.session_state.current_page == "Home" else "secondary",
                  key="nav_home"):
         st.session_state.current_page = "Home"
+        st.session_state.current_tool = None
         st.rerun()
     
-    if st.button("📁 Load PDF", width='stretch', 
-                 type="primary" if st.session_state.current_page == "Load PDF" else "secondary",
-                 key="nav_load"):
-        st.session_state.current_page = "Load PDF"
-        st.rerun()
-    
-    if st.button("📊 Summary Dashboard", width='stretch', 
-                 type="primary" if st.session_state.current_page == "Summary" else "secondary",
-                 key="nav_summary"):
-        st.session_state.current_page = "Summary"
-        st.rerun()
-    
-    if st.button("🔍 Extract Detailed Data", width='stretch', 
-                 type="primary" if st.session_state.current_page == "Extract" else "secondary",
-                 key="nav_extract"):
-        st.session_state.current_page = "Extract"
-        st.rerun()
-    
-    if st.button("📊 Detailed Dashboard", width='stretch', 
-                 type="primary" if st.session_state.current_page == "Dashboard" else "secondary",
-                 key="nav_dashboard"):
-        st.session_state.current_page = "Dashboard"
-        st.rerun()
+    # NDRRMC Tool Navigation
+    if st.session_state.current_tool == "NDRRMC":
+        st.markdown("**📄 NDRRMC Sitrep**")
+        
+        if st.button("📁 Load PDF", width='stretch', 
+                     type="primary" if st.session_state.current_page == "Load PDF" else "secondary",
+                     key="nav_load"):
+            st.session_state.current_page = "Load PDF"
+            st.rerun()
+        
+        if st.button("📊 Summary Dashboard", width='stretch', 
+                     type="primary" if st.session_state.current_page == "Summary" else "secondary",
+                     key="nav_summary"):
+            st.session_state.current_page = "Summary"
+            st.rerun()
+        
+        if st.button("🔍 Extract Detailed Data", width='stretch', 
+                     type="primary" if st.session_state.current_page == "Extract" else "secondary",
+                     key="nav_extract"):
+            st.session_state.current_page = "Extract"
+            st.rerun()
+        
+        if st.button("📊 Detailed Dashboard", width='stretch', 
+                     type="primary" if st.session_state.current_page == "Dashboard" else "secondary",
+                     key="nav_dashboard"):
+            st.session_state.current_page = "Dashboard"
+            st.rerun()
 
-    if st.button("⬇️ Downloads", width='stretch', 
-                 type="primary" if st.session_state.current_page == "Downloads" else "secondary",
-                 key="nav_downloads"):
-        st.session_state.current_page = "Downloads"
-        st.rerun()
+        if st.button("⬇️ Downloads", width='stretch', 
+                     type="primary" if st.session_state.current_page == "Downloads" else "secondary",
+                     key="nav_downloads"):
+            st.session_state.current_page = "Downloads"
+            st.rerun()
     
+    # DROMIC Tool Navigation
+    elif st.session_state.current_tool == "DROMIC":
+        st.markdown("**📋 DROMIC Tool**")
+        
+        if st.button("📁 Load PDF", width='stretch', 
+                     type="primary" if st.session_state.current_page == "Load PDF" else "secondary",
+                     key="nav_dromic_load"):
+            st.session_state.current_page = "Load PDF"
+            st.rerun()
+        
+        if st.button("🔍 Extract & Transform", width='stretch', 
+                     type="primary" if st.session_state.current_page == "DROMIC Extract" else "secondary",
+                     key="nav_dromic_extract"):
+            st.session_state.current_page = "DROMIC Extract"
+            st.rerun()
+    
+    
+    # Help (always visible)
+    st.markdown("---")
     if st.button("❓ Help & FAQ", width='stretch', 
                  type="primary" if st.session_state.current_page == "Help" else "secondary",
                  key="nav_help"):
@@ -191,90 +218,67 @@ with st.sidebar:
     st.markdown("---")
     st.caption("IFRC Philippines 2025")
 
-# Get current page
 page = st.session_state.current_page
 
+
+# =============================================================================
+# HOME PAGE
+# =============================================================================
 if page == "Home":
-    st.title("📊 NDRRMC Report Table Extractor")
-    st.markdown("### Transform disaster response PDFs into structured data")
+    st.title("📊 NDRRMC Data Extraction Tools")
+    st.markdown("### Choose your extraction tool")
     
     # Hero section
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        st.markdown("""
-        This tool extracts and transforms tables from NDRRMC Situational Reports into 
-        clean, analysis-ready CSV files with proper location hierarchies.
-        
-        **Key Features:**
-        - 🗂️ 12 table types supported
-        - 📍 Region/Province/Municipality/Barangay hierarchy
-        - 📊 Interactive summary dashboards
-        - 💾 Download individual or all tables
-        """)
-    
-    with col2:
-        st.info("**Quick Start:**\n\n1. Load PDF\n2. View summary\n3. Extract detailed tables\n4. Download CSVs")
-    
-    st.markdown("---")
-    
-    # Features grid
-    st.subheader("Supported Tables")
-    
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("**👥 Demographics**")
-        st.markdown("- Affected Population\n- Casualties")
-
+        with st.container(border=True):
+            st.subheader("🔷 NDRRMC Sitrep Extractor")
+            st.markdown("""
+            **Best for:** Multi-table extraction with detailed analytics
+            
+            **Features:**
+            - 13 table types supported
+            - Summary + detailed dashboards
+            - 5 vulnerability assessment modules
+            - Interactive filters and downloads
+            
+            **Typical reports:** 100-600 pages
+            """)
+            
+            if st.button("📄 Launch NDRRMC Sitrep Tool", type="primary", use_container_width=True):
+                st.session_state.current_tool = "NDRRMC"
+                st.session_state.current_page = "Load PDF"
+                st.rerun()
+    
     with col2:
-        st.markdown("**🏚️ Damages**")
-        st.markdown("- Damaged Houses\n- Infrastructure Damage\n- Agrigulture Damage")
-    
-    with col3:
-        st.markdown("**⚡ Lifelines**")
-        st.markdown("- Roads and Bridges\n- Power Supply\n- Water Supply\n- Communications")
-    
-    with col4:
-        st.markdown("**🚑 Assistance Provided**")
-        st.markdown("- Family Assistance\n- LGU Assistance\n- Pre-Emptive Evacuation")
+        with st.container(border=True):
+            st.subheader("🔶 DROMIC Report Extractor")
+            st.markdown("""
+            **Best for:** Quick single-table extraction
+            
+            **Features:**
+            - Custom text pattern detection
+            - Automatic admin level detection
+            - P-code matching
+            - Single CSV output
+            
+            **Typical reports:** DSWD DROMIC reports
+            """)
+            
+            if st.button("📋 Launch DROMIC Tool", type="primary", use_container_width=True):
+                st.session_state.current_tool = "DROMIC"
+                st.session_state.current_page = "Load PDF"
+                st.rerun()
     
     st.markdown("---")
-    
-    # How it works
-    st.subheader("How It Works")
-    
-    step1, step2, step3, step4 = st.columns(4)
-    
-    with step1:
-        st.markdown("**1️⃣ Upload PDF**")
-        st.caption("Load NDRRMC situational report from file or URL")
-    
-    with step2:
-        st.markdown("**2️⃣ Auto-Extract Summaries**")
-        st.caption("Summary tables extracted automatically (~2 seconds)")
-    
-    with step3:
-        st.markdown("**3️⃣ Select Detailed Tables**")
-        st.caption("Choose which tables to extract and transform")
-    
-    with step4:
-        st.markdown("**4️⃣ Download Data**")
-        st.caption("Get clean CSVs with location hierarchy")
-    
-    # CTA
-    st.markdown("---")
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col2:
-        if st.button("📁 Get Started - Load PDF", type="primary", width='stretch', key="cta_start"):
-            st.session_state.current_page = "Load PDF"
-            st.rerun()
+ 
 
 # =============================================================================
 # LOAD PDF PAGE
 # =============================================================================
 elif page == "Load PDF":
     st.title("📁 Load PDF Report")
-    st.markdown("Upload a NDRRMC situational report to begin extraction")
     st.markdown("---")
     
     # Center the upload interface
@@ -310,31 +314,32 @@ elif page == "Load PDF":
                     st.error(f"Error reading PDF: {str(e)}")
                     st.session_state['pdf_loaded'] = False
                 
-                # Auto-extract summaries
-                if st.session_state.get('pdf_loaded') and 'summaries' not in st.session_state:
-                    st.markdown("")
-                    with st.spinner("📊 Extracting summary tables (~2 seconds)..."):
-                        try:
-                            summaries = extract_summary_tables(temp_pdf_path)
-                            st.session_state['summaries'] = summaries
-                            st.session_state['summary_extracted'] = True
-                            st.success(f"✅ Found {len(summaries)} tables with summary data")
-                        except Exception as e:
-                            st.error(f"Error extracting summaries: {str(e)}")
-                            st.session_state['summary_extracted'] = False
-                
-                # Navigation buttons
-                if st.session_state.get('summary_extracted'):
-                    st.markdown("")
-                    col_a, col_b = st.columns(2)
-                    with col_a:
-                        if st.button("📊 View Summary Dashboard", type="primary", width='stretch', key="goto_summary"):
-                            st.session_state.current_page = "Summary"
-                            st.rerun()
-                    with col_b:
-                        if st.button("🔍 Extract Detailed Tables", width='stretch', key="goto_extract"):
-                            st.session_state.current_page = "Extract"
-                            st.rerun()
+                # Auto-extract summaries (ONLY for NDRRMC tool)
+                if st.session_state.current_tool == "NDRRMC":
+                    if st.session_state.get('pdf_loaded') and 'summaries' not in st.session_state:
+                        st.markdown("")
+                        with st.spinner("📊 Extracting summary tables (~2 seconds)..."):
+                            try:
+                                summaries = extract_summary_tables(temp_pdf_path)
+                                st.session_state['summaries'] = summaries
+                                st.session_state['summary_extracted'] = True
+                                st.success(f"✅ Found {len(summaries)} tables with summary data")
+                            except Exception as e:
+                                st.error(f"Error extracting summaries: {str(e)}")
+                                st.session_state['summary_extracted'] = False
+                    
+                    # Navigation buttons for NDRRMC
+                    if st.session_state.get('summary_extracted'):
+                        st.markdown("")
+                        col_a, col_b = st.columns(2)
+                        with col_a:
+                            if st.button("📊 View Summary Dashboard", type="primary", width='stretch', key="goto_summary"):
+                                st.session_state.current_page = "Summary"
+                                st.rerun()
+                        with col_b:
+                            if st.button("🔍 Extract Detailed Tables", width='stretch', key="goto_extract"):
+                                st.session_state.current_page = "Extract"
+                                st.rerun()
         
         with tab2:
             st.markdown("**Load PDF from a web address**")
@@ -377,23 +382,33 @@ elif page == "Load PDF":
                                 st.error(f"Error reading PDF: {str(e)}")
                                 st.session_state['pdf_loaded'] = False
                             
-                            # Auto-extract summaries
-                            if st.session_state.get('pdf_loaded'):
-                                with st.spinner("📊 Extracting summary tables..."):
-                                    try:
-                                        summaries = extract_summary_tables(temp_pdf_path)
-                                        st.session_state['summaries'] = summaries
-                                        st.session_state['summary_extracted'] = True
-                                        st.success(f"✅ Found {len(summaries)} tables with summary data")
-                                        st.rerun()
-                                    except Exception as e:
-                                        st.error(f"Error extracting summaries: {str(e)}")
-                                        st.session_state['summary_extracted'] = False
+                            # Auto-extract summaries (ONLY for NDRRMC tool)
+                            if st.session_state.current_tool == "NDRRMC":
+                                if st.session_state.get('pdf_loaded'):
+                                    with st.spinner("📊 Extracting summary tables..."):
+                                        try:
+                                            summaries = extract_summary_tables(temp_pdf_path)
+                                            st.session_state['summaries'] = summaries
+                                            st.session_state['summary_extracted'] = True
+                                            st.success(f"✅ Found {len(summaries)} tables with summary data")
+                                            st.rerun()
+                                        except Exception as e:
+                                            st.error(f"Error extracting summaries: {str(e)}")
+                                            st.session_state['summary_extracted'] = False
                         
                         except requests.exceptions.RequestException as e:
                             st.error(f"Error downloading PDF: {str(e)}")
                         except Exception as e:
                             st.error(f"Unexpected error: {str(e)}")
+    
+    # Navigation for DROMIC tool (OUTSIDE tabs)
+    if st.session_state.current_tool == "DROMIC" and st.session_state.get('pdf_loaded'):
+        st.markdown("---")
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("🔍 Go to Extract & Transform", type="primary", use_container_width=True, key="goto_dromic_extract_main"):
+                st.session_state.current_page = "DROMIC Extract"
+                st.rerun()
 
 # =============================================================================
 # SUMMARY DASHBOARD
@@ -1920,6 +1935,99 @@ elif page == "Help":
         - Try extracting fewer tables at once
         - Refresh the page and try again if stuck
         """)
-    
+
+# =============================================================================
+# DROMIC EXTRACT PAGE
+# =============================================================================
+elif page == "DROMIC Extract":
+    st.title("🔍 DROMIC Data Extraction")
+    st.caption("Extract and transform DROMIC tables with custom text patterns")
     st.markdown("---")
-    st.info("**Questions or issues?** Contact: lee.revis@ifrc.org")
+    
+    # Check if PDF loaded
+    if 'pdf_loaded' not in st.session_state or not st.session_state.get('pdf_loaded'):
+        st.warning("⚠️ Please load a PDF first")
+        if st.button("📁 Go to Load PDF", type="primary"):
+            st.session_state.current_page = "Load PDF"
+            st.rerun()
+    else:
+        st.info(f"📄 **Loaded:** {st.session_state.get('pdf_name', 'Unknown')}")
+        
+        st.markdown("### Configure Extraction")
+        
+        # Text pattern inputs
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            page_text = st.text_input(
+                "Page Text Pattern",
+                value="NO. OF DAMAGED HOUSES",
+                help="Text that must appear on the page to extract tables"
+            )
+        
+        with col2:
+            table_text_input = st.text_input(
+                "Table Text Pattern (comma-separated)",
+                value="NO. OF DAMAGED HOUSES, Total",
+                help="Text patterns that must appear in the table header"
+            )
+        
+        # Convert table text to set
+        table_text = set([t.strip() for t in table_text_input.split(",")])
+        
+        st.markdown("---")
+        
+        # Extract button
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("🔍 Extract & Transform", type="primary", use_container_width=True):
+                pdf_path = st.session_state['temp_pdf_path']
+                
+                with st.spinner("🔄 Extracting DROMIC data..."):
+                    try:
+                        from dromic_extractor import extract_dromic_table
+                        
+                        # Extract with custom patterns
+                        df_dromic = extract_dromic_table(
+                            pdf_path,
+                            page_text=page_text,
+                            table_text=table_text
+                        )
+                        
+                        # Save to session state
+                        st.session_state['dromic_data'] = df_dromic
+                        st.session_state['dromic_extracted'] = True
+                        
+                        st.success(f"✅ Extracted {len(df_dromic)} rows!")
+                        
+                    except Exception as e:
+                        st.error(f"❌ Extraction failed: {str(e)}")
+                        st.exception(e)
+        
+        # MOVED OUTSIDE: Show preview and download if data exists
+        st.markdown("---")
+        if 'dromic_data' in st.session_state and st.session_state.get('dromic_extracted'):
+            df_dromic = st.session_state['dromic_data']
+            
+            st.markdown("### Preview (first 20 rows)")
+            st.dataframe(df_dromic.head(20), use_container_width=True)
+            
+            # Download button
+            st.markdown("---")
+            from datetime import datetime
+            filename = st.session_state.get('pdf_name', 'DROMIC_Extract')
+            filename_clean = filename.replace('.pdf', '').replace(' ', '_')
+            date_str = datetime.now().strftime("%Y%m%d")
+            csv_filename = f"{filename_clean}_{date_str}.csv"
+
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                csv_data = df_dromic.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    "📥 Download CSV",
+                    data=csv_data,
+                    file_name=csv_filename,
+                    mime="text/csv",
+                    type="primary",
+                    use_container_width=True
+                )
