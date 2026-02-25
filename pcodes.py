@@ -41,17 +41,18 @@ def get_clean_names(origin_column):
 
 def add_pcodes(df):
     """
-    Add Philippine P-codes (ADM0-ADM4) to transformed dataframe using fuzzy matching.
+    Add Philippine P-codes and English names (ADM0-ADM4) to transformed dataframe.
     
     Parameters:
     - df: DataFrame with Region, Province, Municipality, Barangay columns
     
     Returns:
-    - DataFrame with added P-code columns (ADM0_PCODE, ADM1_PCODE, ADM2_PCODE, ADM3_PCODE, ADM4_PCODE)
+    - DataFrame with added P-code and name columns
     """
     output_df = df.copy()
     
-    # ADM0 - Country level (always PH)
+    # ADM0 - Country level
+    output_df['ADM0_EN'] = 'Philippines'
     output_df['ADM0_PCODE'] = 'PH'
     
     # Check if we have the required columns
@@ -77,15 +78,15 @@ def add_pcodes(df):
     
     def match_region(clean_name):
         if not clean_name or clean_name == '':
-            return None
+            return pd.Series([None, None])
         match = process.extractOne(clean_name, region_list, score_cutoff=80)
         if match:
             matched_name = match[0]
             pcode_row = pcode_df[pcode_df['adm1_clean'] == matched_name].iloc[0]
-            return pcode_row['ADM1_new']
-        return None
+            return pd.Series([pcode_row['ADM1_EN'], pcode_row['ADM1_new']])
+        return pd.Series([None, None])
     
-    output_df['ADM1_PCODE'] = output_df['region_clean'].apply(match_region)
+    output_df[['ADM1_EN', 'ADM1_PCODE']] = output_df['region_clean'].apply(match_region)
     
     # ADM2 - Province level
     if has_province:
@@ -93,31 +94,37 @@ def add_pcodes(df):
         
         def match_province(row):
             if not row['province_clean'] or row['province_clean'] == '':
-                return pd.Series([None, None])
+                return pd.Series([None, None, None, None])
             
             match = process.extractOne(row['province_clean'], province_list, score_cutoff=80)
             if match:
                 matched_name = match[0]
                 pcode_row = pcode_df[pcode_df['adm2_clean'] == matched_name].iloc[0]
-                return pd.Series([pcode_row['ADM2_new'], pcode_row['ADM1_new']])
-            return pd.Series([None, None])
+                return pd.Series([
+                    pcode_row['ADM2_EN'], 
+                    pcode_row['ADM2_new'],
+                    pcode_row['ADM1_EN'],
+                    pcode_row['ADM1_new']
+                ])
+            return pd.Series([None, None, None, None])
         
-        output_df[['ADM2_PCODE', 'ADM1_PCODE_check']] = output_df.apply(match_province, axis=1)
+        output_df[['ADM2_EN', 'ADM2_PCODE', 'ADM1_EN_check', 'ADM1_PCODE_check']] = output_df.apply(match_province, axis=1)
         
         # Use province-derived ADM1 if region match failed
+        output_df['ADM1_EN'] = output_df['ADM1_EN'].fillna(output_df['ADM1_EN_check'])
         output_df['ADM1_PCODE'] = output_df['ADM1_PCODE'].fillna(output_df['ADM1_PCODE_check'])
-        output_df = output_df.drop('ADM1_PCODE_check', axis=1)
+        output_df = output_df.drop(['ADM1_EN_check', 'ADM1_PCODE_check'], axis=1)
     
     # ADM3 - Municipality level
     if has_municipality and has_province:
         def match_municipality(row):
             if not row['mun_clean'] or pd.isna(row.get('ADM2_PCODE')):
-                return None
+                return pd.Series([None, None])
             
             # Filter to municipalities within this province
             mun_list = pcode_df[pcode_df['ADM2_new'] == row['ADM2_PCODE']]['adm3_clean'].dropna().unique().tolist()
             if not mun_list:
-                return None
+                return pd.Series([None, None])
                 
             match = process.extractOne(row['mun_clean'], mun_list, score_cutoff=80)
             
@@ -126,21 +133,21 @@ def add_pcodes(df):
                 pcode_row = pcode_df[(pcode_df['ADM2_new'] == row['ADM2_PCODE']) & 
                                     (pcode_df['adm3_clean'] == matched_name)]
                 if not pcode_row.empty:
-                    return pcode_row.iloc[0]['ADM3_new']
-            return None
+                    return pd.Series([pcode_row.iloc[0]['ADM3_EN'], pcode_row.iloc[0]['ADM3_new']])
+            return pd.Series([None, None])
         
-        output_df['ADM3_PCODE'] = output_df.apply(match_municipality, axis=1)
+        output_df[['ADM3_EN', 'ADM3_PCODE']] = output_df.apply(match_municipality, axis=1)
     
     # ADM4 - Barangay level
     if has_barangay and has_municipality:
         def match_barangay(row):
             if not row.get('brgy_clean') or pd.isna(row.get('ADM3_PCODE')):
-                return None
+                return pd.Series([None, None])
             
             # Filter to barangays within this municipality
             brgy_list = pcode_df[pcode_df['ADM3_new'] == row['ADM3_PCODE']]['adm4_clean'].dropna().unique().tolist()
             if not brgy_list:
-                return None
+                return pd.Series([None, None])
                 
             match = process.extractOne(row['brgy_clean'], brgy_list, score_cutoff=80)
             
@@ -149,10 +156,10 @@ def add_pcodes(df):
                 pcode_row = pcode_df[(pcode_df['ADM3_new'] == row['ADM3_PCODE']) & 
                                     (pcode_df['adm4_clean'] == matched_name)]
                 if not pcode_row.empty:
-                    return pcode_row.iloc[0]['ADM4_new']
-            return None
+                    return pd.Series([pcode_row.iloc[0]['ADM4_EN'], pcode_row.iloc[0]['ADM4_new']])
+            return pd.Series([None, None])
         
-        output_df['ADM4_PCODE'] = output_df.apply(match_barangay, axis=1)
+        output_df[['ADM4_EN', 'ADM4_PCODE']] = output_df.apply(match_barangay, axis=1)
     
     # Clean up temporary columns
     cols_to_drop = ['region_clean', 'province_clean', 'mun_clean', 'brgy_clean']
