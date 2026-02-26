@@ -233,6 +233,7 @@ def add_dromic_pcodes(df):
     admin3_df = pd.DataFrame()
     for admin2_code in dromic_pcoded["ADM2_new"].dropna().unique():
         pcode_sel = pcode_df[pcode_df["ADM2_new"] == admin2_code]
+        pcode_sel = pcode_sel.drop_duplicates(subset = ["adm3_clean", "ADM3_new"], keep = False)
         dromic_sel = dromic_pcoded[(dromic_pcoded["ADM2_new"] == admin2_code) & (dromic_pcoded["adm3"] == True)]
         joined_sel = pd.merge(dromic_sel, pcode_sel[["adm3_clean", "ADM3_new"]], left_on="clean_name", right_on="adm3_clean", how="left").drop("adm3_clean", axis=1)
         admin3_df = pd.concat([admin3_df, joined_sel], axis=0)
